@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ArtistController;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,4 +22,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/user/register', [UserController::class, 'create']);
-Route::post('/user/login', [UserController::class, 'login']);
+Route::post('/artist/register', [ArtistController::class, 'create']);
+
+Route::post('/login', [LoginController::class, 'login']);

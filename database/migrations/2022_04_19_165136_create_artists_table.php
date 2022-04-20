@@ -15,8 +15,10 @@ return new class extends Migration {
             $table->id();
             $table->string('userName')->unique();
             $table->string('email')->unique();
-            $table->string('artistName');
+            $table->string('fullName');
+            $table->string('password');
             $table->string('profileImage');
+            $table->string('access_token');
             $table->timestamps();
         });
     }
