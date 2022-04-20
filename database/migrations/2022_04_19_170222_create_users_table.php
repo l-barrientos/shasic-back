@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->string('fullName');
             $table->string('password');
             $table->string('profileImage');
-            $table->rememberToken();
+            $table->string('access_token');
             $table->timestamps();
         });
     }
