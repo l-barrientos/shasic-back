@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->string('eventName');
             $table->date('eventDate');
             $table->string('eventLocation');
+            $table->string('eventImage');
             $table->string('ticketsUrl')->nullable();
             $table->string('details')->nullable();
             $table->timestamps();

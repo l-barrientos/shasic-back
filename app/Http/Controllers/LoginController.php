@@ -17,7 +17,7 @@ class LoginController extends Controller {
         $artist = Artist::where('email', $request->email)->first();
         if ($user == null) {
             if ($artist == null) {
-                return response('Invalid credentials', 400);
+                return response('invalidCredentials', 400);
             } else {
                 if (PASSWORD_VERIFY($request->password, $artist->password)) {
 
@@ -26,7 +26,7 @@ class LoginController extends Controller {
                         "access_token" => $artist->access_token
                     ]), 200);
                 } else {
-                    return response('Invalid credentials', 400);
+                    return response('invalidCredentials', 400);
                 }
             }
         } else {
@@ -37,7 +37,7 @@ class LoginController extends Controller {
                     "access_token" => $user->access_token
                 ]), 200);
             } else {
-                return response('Invalid credentials', 400);
+                return response('invalidCredentials', 400);
             }
         }
     }

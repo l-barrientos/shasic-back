@@ -5,82 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
+use App\Models\Artist_Event_Performance;
+use App\Models\User;
+use App\Models\User_Artist_Follow;
+use App\Models\User_Event_Follow;
+use Illuminate\Http\Request;
 
-class EventController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreEventRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreEventRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Event  $event
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Event $event)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Event  $event
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Event $event)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateEventRequest  $request
-     * @param  \App\Models\Event  $event
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateEventRequest $request, Event $event)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Event  $event
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Event $event)
-    {
-        //
+class EventController extends Controller {
+    public function getEventsByUser(Request $request) {
+        $user = User::where('access_token', $request->header('access_token'))->first();
+        $eventsUser = User_Event_Follow::where('user_id', $user->id)->get();
+        $events = [];
+        foreach ($eventsUser as $eventUser) {
+            array_push($events, Event::find($eventUser->event_id)->makeHidden(['created_at', 'updated_at']));
+        }
+        return $events;
     }
 }
