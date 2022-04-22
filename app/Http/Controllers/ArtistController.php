@@ -18,25 +18,26 @@ class ArtistController extends Controller {
      * 
      */
     public function create(Request $request) {
+        if (
+            Artist::where('email', $request->email)->first() != null ||
+            User::where('email', $request->email)->first() != null
+        ) {
+            return response('emailUsed', 400);
+        }
+        if (
+            Artist::where('userName', $request->userName)->first() != null ||
+            User::where('userName', $request->userName)->first() != null
+        ) {
+            return response('userNameUsed', 400);
+        }
+
         $newArtist = new Artist;
-        if (Artist::where('email', $request->email)->first() != null) {
-            return response('Email already used', 400);
-        }
-        if (Artist::where('userName', $request->userName)->first() != null) {
-            return response('Username already used', 400);
-        }
-        if (User::where('email', $request->email)->first() != null) {
-            return response('Email already used', 400);
-        }
-        if (User::where('userName', $request->userName)->first() != null) {
-            return response('Username already used', 400);
-        }
         $newArtist->userName = $request->userName;
         $newArtist->email = $request->email;
         $newArtist->fullName = $request->fullName;
         $newArtist->password = PASSWORD_HASH($request->password, PASSWORD_DEFAULT);
         $newArtist->access_token = PASSWORD_HASH($request->email . $request->password . $request->userName, PASSWORD_DEFAULT);
-        $newArtist->profileImage = 'default.png';
+        $newArtist->profileImage = 'default-user.png';
         $newArtist->save();
 
         return response(json_encode([
@@ -61,5 +62,22 @@ class ArtistController extends Controller {
             array_push($artists, $artistObj);
         }
         return $artists;
+    }
+
+    public function saveImg(Request $request) {
+        $artist = Artist::where('access_token', $request->header('access_token'))->first();
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $imgPath = $request->image->store('public/img');
+            $artist->profileImage = str_replace('public/img/', '', $imgPath);
+            $artist->save();
+            return response(json_encode([
+                "saved" => "OK",
+                "path" => $imgPath
+            ]), 200);
+        } else {
+            return response(json_encode([
+                "saved" => "ERROR"
+            ]), 400);
+        }
     }
 }

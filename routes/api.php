@@ -25,6 +25,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/user/register', [UserController::class, 'create']);
 Route::post('/artist/register', [ArtistController::class, 'create']);
 
+Route::post('artist/img', [ArtistController::class, 'saveImg']);
+Route::post('user/img', [UserController::class, 'saveImg']);
+
 Route::post('/login', [LoginController::class, 'login']);
 
 Route::get('/userEvents', [EventController::class, 'getEventsByUser']);

@@ -16,30 +16,47 @@ class UserController extends Controller {
      * 
      */
     public function create(Request $request) {
+        if (
+            Artist::where('email', $request->email)->first() != null ||
+            User::where('email', $request->email)->first() != null
+        ) {
+            return response('emailUsed', 400);
+        }
+        if (
+            Artist::where('userName', $request->userName)->first() != null ||
+            User::where('userName', $request->userName)->first() != null
+        ) {
+            return response('userNameUsed', 400);
+        }
         $newUser = new User;
-        if (User::where('email', $request->email)->first() != null) {
-            return response('Email already used', 400);
-        }
-        if (User::where('userName', $request->userName)->first() != null) {
-            return response('Username already used', 400);
-        }
-        if (Artist::where('email', $request->email)->first() != null) {
-            return response('Email already used', 400);
-        }
-        if (Artist::where('userName', $request->userName)->first() != null) {
-            return response('Username already used', 400);
-        }
         $newUser->userName = $request->userName;
         $newUser->email = $request->email;
         $newUser->fullName = $request->fullName;
         $newUser->password = PASSWORD_HASH($request->password, PASSWORD_DEFAULT);
         $newUser->access_token = PASSWORD_HASH($request->email . $request->password . $request->userName, PASSWORD_DEFAULT);
-        $newUser->profileImage = 'default.png';
+        $newUser->profileImage = 'default-user.png';
         $newUser->save();
 
         return response(json_encode([
             "rol" => "user",
             "access_token" => $newUser->access_token
         ]), 200);
+    }
+
+    public function saveImg(Request $request) {
+        $user = User::where('access_token', $request->header('access_token'))->first();
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $imgPath = $request->image->store('public/img');
+            $user->profileImage = str_replace('public/img/', '', $imgPath);
+            $user->save();
+            return response(json_encode([
+                "saved" => "OK",
+                "path" => $imgPath
+            ]), 200);
+        } else {
+            return response(json_encode([
+                "saved" => "ERROR"
+            ]), 400);
+        }
     }
 }
