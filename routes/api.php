@@ -26,9 +26,11 @@ Route::post('/user/register', [UserController::class, 'create']);
 Route::post('/artist/register', [ArtistController::class, 'create']);
 
 Route::post('artist/img', [ArtistController::class, 'saveImg']);
-Route::post('user/img', [UserController::class, 'saveImg']);
+Route::post('user/img', [UserController::class, 'saveImg'])->middleware('userAuth');
 
 Route::post('/login', [LoginController::class, 'login']);
 
-Route::get('/userEvents', [EventController::class, 'getEventsByUser']);
-Route::get('/userArtists', [ArtistController::class, 'getArtistsByUser']);
+Route::get('/userEvents', [EventController::class, 'getEventsByUser'])->middleware('userAuth');
+Route::get('/userArtists', [ArtistController::class, 'getArtistsByUser'])->middleware('userAuth');
+
+Route::get('/event/{id}', [EventController::class, 'getEventById'])->middleware('userAuth');

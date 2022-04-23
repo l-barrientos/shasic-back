@@ -43,7 +43,7 @@ class ArtistController extends Controller {
         return response(json_encode([
             "rol" => 'artist',
             "access_token" => $newArtist->access_token
-        ]), 200);
+        ]));
     }
 
     /*
@@ -73,7 +73,7 @@ class ArtistController extends Controller {
             return response(json_encode([
                 "saved" => "OK",
                 "path" => $imgPath
-            ]), 200);
+            ]));
         } else {
             return response(json_encode([
                 "saved" => "ERROR"

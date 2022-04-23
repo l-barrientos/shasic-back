@@ -24,7 +24,7 @@ class LoginController extends Controller {
                     return response(json_encode([
                         "rol" => "artist",
                         "access_token" => $artist->access_token
-                    ]), 200);
+                    ]));
                 } else {
                     return response('invalidCredentials', 400);
                 }
@@ -35,7 +35,7 @@ class LoginController extends Controller {
                 return response(json_encode([
                     "rol" => "user",
                     "access_token" => $user->access_token
-                ]), 200);
+                ]));
             } else {
                 return response('invalidCredentials', 400);
             }

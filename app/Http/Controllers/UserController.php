@@ -40,7 +40,7 @@ class UserController extends Controller {
         return response(json_encode([
             "rol" => "user",
             "access_token" => $newUser->access_token
-        ]), 200);
+        ]));
     }
 
     public function saveImg(Request $request) {
@@ -52,7 +52,7 @@ class UserController extends Controller {
             return response(json_encode([
                 "saved" => "OK",
                 "path" => $imgPath
-            ]), 200);
+            ]));
         } else {
             return response(json_encode([
                 "saved" => "ERROR"
