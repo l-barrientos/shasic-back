@@ -14,6 +14,7 @@ return new class extends Migration {
      */
     public function up() {
         Schema::create('artist__event__performances', function (Blueprint $table) {
+            $table->id();
             $table->foreignIdFor(Artist::class);
             $table->foreignIdFor(Event::class);
             $table->timestamps();

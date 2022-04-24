@@ -34,13 +34,13 @@ class UserController extends Controller {
         $newUser->fullName = $request->fullName;
         $newUser->password = PASSWORD_HASH($request->password, PASSWORD_DEFAULT);
         $newUser->access_token = PASSWORD_HASH($request->email . $request->password . $request->userName, PASSWORD_DEFAULT);
-        $newUser->profileImage = 'default-user.png';
+        $newUser->profileImage = 'default';
         $newUser->save();
 
         return response(json_encode([
             "rol" => "user",
             "access_token" => $newUser->access_token
-        ]), 200);
+        ]));
     }
 
     public function saveImg(Request $request) {
@@ -52,7 +52,7 @@ class UserController extends Controller {
             return response(json_encode([
                 "saved" => "OK",
                 "path" => $imgPath
-            ]), 200);
+            ]));
         } else {
             return response(json_encode([
                 "saved" => "ERROR"

@@ -24,7 +24,7 @@ class LoginController extends Controller {
                     return response(json_encode([
                         "rol" => "artist",
                         "access_token" => $artist->access_token
-                    ]), 200);
+                    ]));
                 } else {
                     return response('invalidCredentials', 400);
                 }
@@ -35,9 +35,27 @@ class LoginController extends Controller {
                 return response(json_encode([
                     "rol" => "user",
                     "access_token" => $user->access_token
-                ]), 200);
+                ]));
             } else {
                 return response('invalidCredentials', 400);
+            }
+        }
+    }
+
+    public function autoLogin(Request $request) {
+        $user = User::where('access_token', $request->header('access_token'))->first();
+        if ($user != null) {
+            return response(json_encode([
+                "rol" => "user"
+            ]));
+        } else {
+            $artist = Artist::where('access_token', $request->header('access_token'))->first();
+            if ($artist != null) {
+                return response(json_encode([
+                    "rol" => "artist"
+                ]));
+            } else {
+                return response('', 403);
             }
         }
     }
