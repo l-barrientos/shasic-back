@@ -17,7 +17,7 @@ class UserAuth {
     public function handle(Request $request, Closure $next) {
         $user = User::where('access_token', $request->header('access_token'))->first();
         if ($user == null) {
-            return response('', 403);
+            return response('Failed on Authentication', 403);
         } else {
             return $next($request);
         }

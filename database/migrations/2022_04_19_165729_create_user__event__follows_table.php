@@ -14,6 +14,7 @@ return new class extends Migration {
      */
     public function up() {
         Schema::create('user__event__follows', function (Blueprint $table) {
+            $table->id();
             $table->foreignIdFor(User::class);
             $table->foreignIdFor(Event::class);
             $table->timestamps();
