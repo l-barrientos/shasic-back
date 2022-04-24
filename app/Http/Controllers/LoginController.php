@@ -41,4 +41,22 @@ class LoginController extends Controller {
             }
         }
     }
+
+    public function autoLogin(Request $request) {
+        $user = User::where('access_token', $request->header('access_token'))->first();
+        if ($user != null) {
+            return response(json_encode([
+                "rol" => "user"
+            ]));
+        } else {
+            $artist = Artist::where('access_token', $request->header('access_token'))->first();
+            if ($artist != null) {
+                return response(json_encode([
+                    "rol" => "artist"
+                ]));
+            } else {
+                return response('', 403);
+            }
+        }
+    }
 }
