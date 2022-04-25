@@ -3,6 +3,7 @@
 use App\Http\Controllers\ArtistController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\UserArtistFollowController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserEventFollowController;
@@ -44,3 +45,5 @@ Route::get('/followEvent/{id}', [UserEventFollowController::class, 'followEvent'
 
 Route::delete('/unfollowArtist/{id}', [UserArtistFollowController::class, 'unfollowArtist'])->middleware('userAuth');
 Route::get('/followArtist/{id}', [UserArtistFollowController::class, 'followArtist'])->middleware('userAuth');
+
+Route::get('/search', [SearchController::class, 'getResults'])->middleware('userAuth');

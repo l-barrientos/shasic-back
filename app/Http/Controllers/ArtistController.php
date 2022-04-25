@@ -49,7 +49,7 @@ class ArtistController extends Controller {
 
     /*
      *
-     * Get Artists by User
+     * Get all rtists
      * 
      */
     public function getAllArtists(Request $request) {
@@ -59,6 +59,7 @@ class ArtistController extends Controller {
             if ($artist->profileImage != 'default') {
                 $artist->profileImage = asset('storage/img/' . $artist->profileImage);
             }
+            $artist['eventsNum'] = Artist_Event_Performance::where('artist_id', $artist->artist_id)->count();
             $artist['followers'] = User_Artist_Follow::where('artist_id', $artist->id)->count();
             $userArtist = User_Artist_Follow::where('artist_id', $artist->id)->where('user_id', $user->id)->first();
             $artist['following'] = $userArtist != null ? true : false;
@@ -80,8 +81,7 @@ class ArtistController extends Controller {
             if ($artistObj->profileImage != 'default') {
                 $artistObj->profileImage = asset('storage/img/' . $artistObj->profileImage);
             }
-            $eventsNum = Artist_Event_Performance::where('artist_id', $artist->artist_id)->count();
-            $artistObj['eventsNum'] = $eventsNum;
+            $artistObj['eventsNum'] = Artist_Event_Performance::where('artist_id', $artist->artist_id)->count();
             $artistObj['followers'] = User_Artist_Follow::where('artist_id', $artist->artist_id)->count();
             array_push($artists, $artistObj);
         }
@@ -93,7 +93,8 @@ class ArtistController extends Controller {
      * Get Artist by name
      * 
      */
-    public function getArtistByUserName($userName) {
+    public function getArtistByUserName($userName, Request $request) {
+        $user = User::where('access_token', $request->header('access_token'))->first();
         $artist =  Artist::where('userName', $userName)->first()->makeHidden(['password', 'access_token', 'created_at', 'updated_at']);
         if ($artist == null) {
             return response('Artist not found', 404);
@@ -105,6 +106,8 @@ class ArtistController extends Controller {
         foreach ($eventsArtist as $eventArt) {
             array_push($events, Event::find($eventArt->event_id));
         }
+        $userArtist = User_Artist_Follow::where('artist_id', $artist->id)->where('user_id', $user->id)->first();
+        $artist['following'] = $userArtist != null ? true : false;
         return response([
             "artist" => $artist,
             "events" => $events
