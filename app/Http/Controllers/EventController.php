@@ -18,7 +18,7 @@ class EventController extends Controller {
         $user = User::where('access_token', $request->header('access_token'))->first();
         $events = Event::all();
         foreach ($events as $event) {
-            $event['followers'] = Artist_Event_Performance::where('event_id', $event->id)->count();
+            $event['followers'] = User_Event_Follow::where('event_id', $event->id)->count();
             $userEvent = User_Event_Follow::where('event_id', $event->id)->where('user_id', $user->id)->first();
             $event['following'] = $userEvent != null ? true : false;
         }
@@ -34,7 +34,7 @@ class EventController extends Controller {
             array_push($events, Event::find($eventUser->event_id)->makeHidden(['created_at', 'updated_at']));
         }
         foreach ($events as $event) {
-            $event['followers'] = Artist_Event_Performance::where('event_id', $event->id)->count();
+            $event['followers'] = User_Event_Follow::where('event_id', $event->id)->count();
         }
         return $events;
     }
@@ -47,7 +47,7 @@ class EventController extends Controller {
         foreach ($artistsEvent as $artEv) {
             array_push($artists, Artist::find($artEv->artist_id)->makeHidden(['password', 'access_token', 'created_at', 'updated_at']));
         }
-        $event['followers'] = Artist_Event_Performance::where('event_id', $event->id)->count();
+        $event['followers'] = User_Event_Follow::where('event_id', $event->id)->count();
         $userEvent = User_Event_Follow::where('event_id', $id)->where('user_id', $user->id)->first();
         $event['following'] = $userEvent != null ? true : false;
 
