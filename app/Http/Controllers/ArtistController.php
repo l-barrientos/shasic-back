@@ -106,6 +106,7 @@ class ArtistController extends Controller {
         foreach ($eventsArtist as $eventArt) {
             array_push($events, Event::find($eventArt->event_id));
         }
+        $artist['followers'] = User_Artist_Follow::where('artist_id', $artist->id)->count();
         $userArtist = User_Artist_Follow::where('artist_id', $artist->id)->where('user_id', $user->id)->first();
         $artist['following'] = $userArtist != null ? true : false;
         return response([
