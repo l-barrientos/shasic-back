@@ -31,11 +31,11 @@ class EventController extends Controller {
         $eventsUser = User_Event_Follow::where('user_id', $user->id)->get();
         $events = [];
         foreach ($eventsUser as $eventUser) {
-            array_push($events, Event::find($eventUser->event_id)->makeHidden(['created_at', 'updated_at']));
-        }
-        foreach ($events as $event) {
+            $event = Event::find($eventUser->event_id)->makeHidden(['created_at', 'updated_at']);
             $event['followers'] = User_Event_Follow::where('event_id', $event->id)->count();
+            array_push($events, $event);
         }
+
         return $events;
     }
 
@@ -47,13 +47,11 @@ class EventController extends Controller {
         foreach ($artistsEvent as $artEv) {
             array_push($artists, Artist::find($artEv->artist_id)->makeHidden(['password', 'access_token', 'created_at', 'updated_at']));
         }
+        $event['artists'] = $artists;
         $event['followers'] = User_Event_Follow::where('event_id', $event->id)->count();
         $userEvent = User_Event_Follow::where('event_id', $id)->where('user_id', $user->id)->first();
         $event['following'] = $userEvent != null ? true : false;
 
-        return response([
-            'event' => $event,
-            'artists' => $artists
-        ]);
+        return response($event);
     }
 }

@@ -59,7 +59,11 @@ class ArtistController extends Controller {
             if ($artist->profileImage != 'default') {
                 $artist->profileImage = asset('storage/img/' . $artist->profileImage);
             }
-            $artist['eventsNum'] = Artist_Event_Performance::where('artist_id', $artist->artist_id)->count();
+            $artistsEventsRelation = Artist_Event_Performance::where('artist_id', $artist->artist_id)->get();
+            $artist['events'] = [];
+            foreach ($artistsEventsRelation as $artEvt) {
+                array_push($artist['events'], Event::find($artEvt->event_id));
+            }
             $artist['followers'] = User_Artist_Follow::where('artist_id', $artist->id)->count();
             $userArtist = User_Artist_Follow::where('artist_id', $artist->id)->where('user_id', $user->id)->first();
             $artist['following'] = $userArtist != null ? true : false;
@@ -81,11 +85,16 @@ class ArtistController extends Controller {
             if ($artistObj->profileImage != 'default') {
                 $artistObj->profileImage = asset('storage/img/' . $artistObj->profileImage);
             }
-            $artistObj['eventsNum'] = Artist_Event_Performance::where('artist_id', $artist->artist_id)->count();
+            $artistsEventsRelation = Artist_Event_Performance::where('artist_id', $artist->artist_id)->get();
+            $events = [];
+            foreach ($artistsEventsRelation as $artEvt) {
+                array_push($events, Event::find($artEvt->event_id));
+            }
+            $artist['events'] = $events;
             $artistObj['followers'] = User_Artist_Follow::where('artist_id', $artist->artist_id)->count();
             array_push($artists, $artistObj);
         }
-        return $artists;
+        return response($artists);
     }
 
     /*
@@ -106,13 +115,11 @@ class ArtistController extends Controller {
         foreach ($eventsArtist as $eventArt) {
             array_push($events, Event::find($eventArt->event_id));
         }
+        $artist['events'] = $events;
         $artist['followers'] = User_Artist_Follow::where('artist_id', $artist->id)->count();
         $userArtist = User_Artist_Follow::where('artist_id', $artist->id)->where('user_id', $user->id)->first();
         $artist['following'] = $userArtist != null ? true : false;
-        return response([
-            "artist" => $artist,
-            "events" => $events
-        ]);
+        return response($artist);
     }
     /*
      *

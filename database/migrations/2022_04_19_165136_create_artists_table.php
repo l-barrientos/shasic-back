@@ -18,9 +18,9 @@ return new class extends Migration {
             $table->string('fullName');
             $table->string('password');
             $table->string('profileImage');
+            $table->string('access_token')->unique();
             $table->string('location')->nullable();
             $table->text('bio')->nullable();
-            $table->string('access_token');
             $table->timestamps();
         });
     }
