@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Artist;
+use App\Models\User_Event_Follow;
 use Illuminate\Http\Request;
 
 class UserController extends Controller {
@@ -58,5 +59,25 @@ class UserController extends Controller {
                 "saved" => "ERROR"
             ]), 400);
         }
+    }
+
+    public function getUsersByEvent(Request $request, $event_id) {
+        $usersEvent = User_Event_Follow::where('event_id', $event_id)->get();
+        $user = User::where('access_token', $request->header('access_token'))->first();
+
+        $userId = $user->id;
+        $users  = [];
+        foreach ($usersEvent as $userEv) {
+            array_push($users, User::find($userEv->user_id)->makeHidden('password', 'email', 'access_token'));
+        }
+
+        $usersFiltered = array_filter(
+            $users,
+            function ($obj) use ($userId) {
+                return $obj->id != $userId;
+            }
+        );
+
+        return response($usersFiltered);
     }
 }
