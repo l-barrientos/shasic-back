@@ -59,11 +59,12 @@ class ArtistController extends Controller {
             if ($artist->profileImage != 'default') {
                 $artist->profileImage = asset('storage/img/' . $artist->profileImage);
             }
-            $artistsEventsRelation = Artist_Event_Performance::where('artist_id', $artist->artist_id)->get();
-            $artist['events'] = [];
+            $artistsEventsRelation = Artist_Event_Performance::where('artist_id', $artist->id)->get();
+            $events = [];
             foreach ($artistsEventsRelation as $artEvt) {
-                array_push($artist['events'], Event::find($artEvt->event_id));
+                array_push($events, Event::find($artEvt->event_id));
             }
+            $artist['events'] = $events;
             $artist['followers'] = User_Artist_Follow::where('artist_id', $artist->id)->count();
             $userArtist = User_Artist_Follow::where('artist_id', $artist->id)->where('user_id', $user->id)->first();
             $artist['following'] = $userArtist != null ? true : false;
@@ -90,7 +91,7 @@ class ArtistController extends Controller {
             foreach ($artistsEventsRelation as $artEvt) {
                 array_push($events, Event::find($artEvt->event_id));
             }
-            $artist['events'] = $events;
+            $artistObj['events'] = $events;
             $artistObj['followers'] = User_Artist_Follow::where('artist_id', $artist->artist_id)->count();
             array_push($artists, $artistObj);
         }
