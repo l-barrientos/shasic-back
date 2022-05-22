@@ -5,82 +5,35 @@ namespace App\Http\Controllers;
 use App\Models\Chat;
 use App\Http\Requests\StoreChatRequest;
 use App\Http\Requests\UpdateChatRequest;
+use App\Models\User;
+use Illuminate\Http\Request;
 
-class ChatController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
+class ChatController extends Controller {
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreChatRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreChatRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Chat  $chat
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Chat $chat)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Chat  $chat
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Chat $chat)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateChatRequest  $request
-     * @param  \App\Models\Chat  $chat
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateChatRequest $request, Chat $chat)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Chat  $chat
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Chat $chat)
-    {
-        //
+    public function createNewChat(Request $request, $targetUserId) {
+        $user = User::where('access_token', $request->header('access_token'))->first();
+        $targetUser = User::find($targetUserId);
+        $openedChat = Chat::where('user1_id', $user->id)->where('user2_id', $targetUser->id)->first();
+        if ($openedChat == null) {
+            $openedChat = Chat::where('user2_id', $user->id)->where('user1_id', $targetUser->id)->first();
+            if ($openedChat == null) {
+                $newChat = new Chat;
+                $newChat->user1_id = $user->id;
+                $newChat->user2_id = $targetUser->id;
+                $newChat->save();
+                return response([
+                    "status" => "created",
+                    "chatId" => $newChat->id
+                ]);
+            } else {
+                return response([
+                    "status" => "alreadyExisted"
+                ]);
+            }
+        } else {
+            return response([
+                "status" => "alreadyExisted"
+            ]);
+        }
     }
 }

@@ -1,12 +1,14 @@
 <?php
 
 use App\Http\Controllers\ArtistController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\UserArtistFollowController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserEventFollowController;
+use App\Http\Middleware\UserAuth;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -58,3 +60,4 @@ Route::get('/search', [SearchController::class, 'getResults'])->middleware('user
 
 //Chats
 Route::get('/eventUsers/{id}', [UserController::class, 'getUsersByEvent'])->middleware('userAuth');
+Route::post('/newChat/{targetUserId}', [ChatController::class, 'createNewChat'])->middleware('userAuth');

@@ -68,16 +68,17 @@ class UserController extends Controller {
         $userId = $user->id;
         $users  = [];
         foreach ($usersEvent as $userEv) {
-            array_push($users, User::find($userEv->user_id)->makeHidden('password', 'email', 'access_token'));
+            if ($userEv->user_id != $userId) {
+                $user =  User::find($userEv->user_id)->makeHidden('password', 'email', 'access_token');
+                if ($user->profileImage != "default") {
+                    $user->profileImage = asset('storage/img/' . $user->profileImage);
+                }
+                array_push($users, $user);
+            }
         }
 
-        $usersFiltered = array_filter(
-            $users,
-            function ($obj) use ($userId) {
-                return $obj->id != $userId;
-            }
-        );
 
-        return response($usersFiltered);
+
+        return response($users);
     }
 }
