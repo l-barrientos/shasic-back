@@ -60,4 +60,6 @@ Route::get('/search', [SearchController::class, 'getResults'])->middleware('user
 
 //Chats
 Route::get('/eventUsers/{id}', [UserController::class, 'getUsersByEvent'])->middleware('userAuth');
-Route::post('/newChat/{targetUserId}', [ChatController::class, 'createNewChat'])->middleware('userAuth');
+Route::post('/newChat/{targetUserName}', [ChatController::class, 'createNewChat'])->middleware('userAuth');
+Route::get('/getChatInfo/{targetUserName}', [ChatController::class, 'getChatInfo'])->middleware('userAuth');
+
