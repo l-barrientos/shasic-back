@@ -76,9 +76,14 @@ class UserController extends Controller {
                 array_push($users, $user);
             }
         }
-
-
-
         return response($users);
+    }
+
+    public function getUserProfile(Request $request) {
+        $user = User::where('access_token', $request->header('access_token'))->first()->makeHidden('password', 'access_token');
+        if ($user->profileImage != "default") {
+            $user->profileImage = asset('storage/img/' . $user->profileImage);
+        }
+        return response($user);
     }
 }

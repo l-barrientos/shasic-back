@@ -37,6 +37,9 @@ Route::post('/artist/register', [ArtistController::class, 'create']);
 Route::post('artist/img', [ArtistController::class, 'saveImg']);
 Route::post('user/img', [UserController::class, 'saveImg'])->middleware('userAuth');
 
+//User
+Route::get('/getUserProfile', [UserController::class, 'getUserProfile'])->middleware('userAuth');
+
 //Events
 Route::get('/events', [EventController::class, 'getAllEvents'])->middleware('userAuth');
 Route::get('/userEvents', [EventController::class, 'getEventsByUser'])->middleware('userAuth');
@@ -62,4 +65,4 @@ Route::get('/search', [SearchController::class, 'getResults'])->middleware('user
 Route::get('/eventUsers/{id}', [UserController::class, 'getUsersByEvent'])->middleware('userAuth');
 Route::post('/newChat/{targetUserName}', [ChatController::class, 'createNewChat'])->middleware('userAuth');
 Route::get('/getChatInfo/{targetUserName}', [ChatController::class, 'getChatInfo'])->middleware('userAuth');
-
+Route::get('/getOpenedChats', [ChatController::class, 'getOpenedChats'])->middleware('userAuth');
