@@ -56,4 +56,29 @@ class ChatController extends Controller {
             "chatId" => $chat->id
         ]);
     }
+
+    public function getOpenedChats(Request $request) {
+        $user = User::where('access_token', $request->header('access_token'))->first();
+        $openedChats = [];
+        $user1chats = Chat::where('user1_id', $user->id)->get();
+        foreach ($user1chats as $user1chat) {
+            $targetUser2 = User::find($user1chat->user2_id)->makeHidden('password', 'email', 'access_token', 'created_at', 'updated_at');
+            if ($targetUser2->profileImage != "default") {
+                $targetUser2->profileImage = asset('storage/img/' . $targetUser2->profileImage);
+            }
+            $targetUser2->chatId = $user1chat->id;
+            array_push($openedChats, $targetUser2);
+        }
+        $user2chats = Chat::where('user2_id', $user->id)->get();
+        foreach ($user2chats as $user2chat) {
+            $targetUser1 = User::find($user2chat->user1_id)->makeHidden('password', 'email', 'access_token', 'created_at', 'updated_at');
+            if ($targetUser1->profileImage != "default") {
+                $targetUser1->profileImage = asset('storage/img/' . $targetUser1->profileImage);
+            }
+            $targetUser1->chatId = $user2chat->id;
+            array_push($openedChats, $targetUser1);
+        }
+
+        return response($openedChats);
+    }
 }
