@@ -54,4 +54,47 @@ class EventController extends Controller {
 
         return response($event);
     }
+
+    public function newEvent(Request $request) {
+        $newEvent = new Event;
+        $newEvent->eventName = $request->eventName;
+        $newEvent->eventLocation = $request->eventLocation;
+        $newEvent->eventDate = $request->eventDate;
+        $newEvent->eventImage = '';
+
+        if (isset($request->ticketsUrl)) {
+            $newEvent->ticketsUrl = $request->ticketsUrl;
+        }
+        if (isset($request->details)) {
+            $newEvent->details = $request->details;
+        }
+        $newEvent->save();
+        foreach ($request->artists as $artist) {
+            $artistEvent = new Artist_Event_Performance;
+            $artistEvent->event_id = $newEvent->id;
+            $artistEvent->artist_id = $artist->id;
+            $artistEvent->save();
+        }
+        return response([
+            "status" => "created",
+            "id" => $newEvent->id
+        ]);
+    }
+
+    public function saveImg(Request $request, $id) {
+        $event = Event::find($id);
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $imgPath = $request->image->store('public/img/events');
+            $event->eventImage = str_replace('public/img/events/', '', $imgPath);
+            $event->save();
+            return response([
+                "saved" => "OK",
+                "path" => $imgPath
+            ]);
+        } else {
+            return response([
+                "saved" => "ERROR"
+            ], 400);
+        }
+    }
 }

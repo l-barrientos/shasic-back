@@ -122,6 +122,13 @@ class ArtistController extends Controller {
         $artist['following'] = $userArtist != null ? true : false;
         return response($artist);
     }
+
+    public function getAllArtistsIds() {
+        $artists = Artist::select('id', 'userName', 'fullName')->get();
+        return response($artists);
+    }
+
+
     /*
      *
      * Save profile image
