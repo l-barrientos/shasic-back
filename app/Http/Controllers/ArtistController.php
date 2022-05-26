@@ -62,7 +62,9 @@ class ArtistController extends Controller {
             $artistsEventsRelation = Artist_Event_Performance::where('artist_id', $artist->id)->get();
             $events = [];
             foreach ($artistsEventsRelation as $artEvt) {
-                array_push($events, Event::find($artEvt->event_id));
+                $event = Event::find($artEvt->event_id);
+                $event->eventImage = asset('storage/img/events/' . $event->eventImage);
+                array_push($events, $event);
             }
             $artist['events'] = $events;
             $artist['followers'] = User_Artist_Follow::where('artist_id', $artist->id)->count();
@@ -89,7 +91,9 @@ class ArtistController extends Controller {
             $artistsEventsRelation = Artist_Event_Performance::where('artist_id', $artist->artist_id)->get();
             $events = [];
             foreach ($artistsEventsRelation as $artEvt) {
-                array_push($events, Event::find($artEvt->event_id));
+                $event = Event::find($artEvt->event_id);
+                $event->eventImage = asset('storage/img/events/' . $event->eventImage);
+                array_push($events, $event);
             }
             $artistObj['events'] = $events;
             $artistObj['followers'] = User_Artist_Follow::where('artist_id', $artist->artist_id)->count();
@@ -114,7 +118,9 @@ class ArtistController extends Controller {
         $eventsArtist = Artist_Event_Performance::where('artist_id', $artist->id)->get();
         $events = [];
         foreach ($eventsArtist as $eventArt) {
-            array_push($events, Event::find($eventArt->event_id));
+            $event = Event::find($eventArt->event_id);
+            $event->eventImage = asset('storage/img/events/' . $event->eventImage);
+            array_push($events, $event);
         }
         $artist['events'] = $events;
         $artist['followers'] = User_Artist_Follow::where('artist_id', $artist->id)->count();
