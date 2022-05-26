@@ -18,6 +18,7 @@ class EventController extends Controller {
         $user = User::where('access_token', $request->header('access_token'))->first();
         $events = Event::all();
         foreach ($events as $event) {
+            $event->eventImage = asset('storage/img/events/' . $event->eventImage);
             $event['followers'] = User_Event_Follow::where('event_id', $event->id)->count();
             $userEvent = User_Event_Follow::where('event_id', $event->id)->where('user_id', $user->id)->first();
             $event['following'] = $userEvent != null ? true : false;
@@ -27,11 +28,11 @@ class EventController extends Controller {
 
     public function getEventsByUser(Request $request) {
         $user = User::where('access_token', $request->header('access_token'))->first();
-
         $eventsUser = User_Event_Follow::where('user_id', $user->id)->get();
         $events = [];
         foreach ($eventsUser as $eventUser) {
             $event = Event::find($eventUser->event_id)->makeHidden(['created_at', 'updated_at']);
+            $event->eventImage = asset('storage/img/events/' . $event->eventImage);
             $event['followers'] = User_Event_Follow::where('event_id', $event->id)->count();
             array_push($events, $event);
         }
@@ -47,6 +48,7 @@ class EventController extends Controller {
         foreach ($artistsEvent as $artEv) {
             array_push($artists, Artist::find($artEv->artist_id)->makeHidden(['password', 'access_token', 'created_at', 'updated_at']));
         }
+        $event->eventImage = asset('storage/img/events/' . $event->eventImage);
         $event['artists'] = $artists;
         $event['followers'] = User_Event_Follow::where('event_id', $event->id)->count();
         $userEvent = User_Event_Follow::where('event_id', $id)->where('user_id', $user->id)->first();
@@ -56,12 +58,13 @@ class EventController extends Controller {
     }
 
     public function newEvent(Request $request) {
+        $creator = Artist::where('access_token', $request->header('access_token'))->first();
         $newEvent = new Event;
         $newEvent->eventName = $request->eventName;
         $newEvent->eventLocation = $request->eventLocation;
         $newEvent->eventDate = $request->eventDate;
         $newEvent->eventImage = '';
-
+        $newEvent->createdBy = $creator->id;
         if (isset($request->ticketsUrl)) {
             $newEvent->ticketsUrl = $request->ticketsUrl;
         }
@@ -72,7 +75,7 @@ class EventController extends Controller {
         foreach ($request->artists as $artist) {
             $artistEvent = new Artist_Event_Performance;
             $artistEvent->event_id = $newEvent->id;
-            $artistEvent->artist_id = $artist->id;
+            $artistEvent->artist_id = $artist['id'];
             $artistEvent->save();
         }
         return response([
