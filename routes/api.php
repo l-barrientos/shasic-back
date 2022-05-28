@@ -44,8 +44,12 @@ Route::get('/getUserProfile', [UserController::class, 'getUserProfile'])->middle
 //Events
 Route::get('/events', [EventController::class, 'getAllEvents'])->middleware('userAuth');
 Route::get('/userEvents', [EventController::class, 'getEventsByUser'])->middleware('userAuth');
-Route::get('/event/{id}', [EventController::class, 'getEventById'])->middleware('userAuth');
+Route::get('/event/{id}', [EventController::class, 'getEventById']);
+Route::get('/getEventsCreated', [EventController::class, 'getEventsByCreator'])->middleware('artistAuth');
+Route::get('/getEventsPerformed', [EventController::class, 'getEventsByArtist'])->middleware('artistAuth');
 Route::post('/newEvent', [EventController::class, 'newEvent'])->middleware('artistAuth');
+Route::put('/updateEvent/{id}', [EventController::class, 'updateEvent'])->middleware('artistAuth');
+Route::get('/checkEventEdition/{id}', [EventController::class, 'checkEditionAllowed'])->middleware('artistAuth');
 
 //Artists
 Route::get('/artists', [ArtistController::class, 'getAllArtists'])->middleware('userAuth');
