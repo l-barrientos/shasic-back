@@ -13,10 +13,8 @@ use Illuminate\Http\Request;
 
 class ArtistController extends Controller {
 
-    /*
-     *
-     * Create new artist
-     * 
+    /**
+     * Cretae new artists
      */
     public function create(Request $request) {
         if (
@@ -47,10 +45,8 @@ class ArtistController extends Controller {
         ]));
     }
 
-    /*
-     *
-     * Get all rtists
-     * 
+    /**
+     * Get all artists
      */
     public function getAllArtists(Request $request) {
         $user = User::where('access_token', $request->header('access_token'))->first();
@@ -74,10 +70,8 @@ class ArtistController extends Controller {
         return $artists;
     }
 
-    /*
-     *
-     * Get Artists by User
-     * 
+    /**
+     * Get artists by user
      */
     public function getArtistsByUser(Request $request) {
         $user = User::where('access_token', $request->header('access_token'))->first();
@@ -102,10 +96,8 @@ class ArtistController extends Controller {
         return response($artists);
     }
 
-    /*
-     *
-     * Get Artist by name
-     * 
+    /**
+     * Get artists by user
      */
     public function getArtistByUserName($userName, Request $request) {
         $user = User::where('access_token', $request->header('access_token'))->first();
@@ -135,10 +127,8 @@ class ArtistController extends Controller {
     }
 
 
-    /*
-     *
+    /**
      * Save profile image
-     * 
      */
     public function saveImg(Request $request) {
         $artist = Artist::where('access_token', $request->header('access_token'))->first();

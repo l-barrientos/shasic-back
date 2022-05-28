@@ -17,6 +17,7 @@ class SearchController extends Controller {
         $artists = Artist::where('fullName', 'like', '%' . $request->header('query') . '%')->orWhere('userName', 'like', '%' . $request->header('query') . '%')->get();
         $events = Event::where('eventName', 'like', '%' . $request->header('query') . '%')->get();
         foreach ($events as $event) {
+            $event->eventImage = asset('storage/img/events/' . $event->eventImage);
             $event['followers'] = User_Event_Follow::where('event_id', $event->id)->count();
             $userEvent = User_Event_Follow::where('event_id', $event->id)->where('user_id', $user->id)->first();
             $event['following'] = $userEvent != null ? true : false;
