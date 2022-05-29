@@ -53,7 +53,7 @@ class ArtistController extends Controller {
         $artists = Artist::all();
         foreach ($artists as $artist) {
             if ($artist->profileImage != 'default') {
-                $artist->profileImage = asset('storage/img/' . $artist->profileImage);
+                $artist->profileImage = asset('storage/img/artists/' . $artist->profileImage);
             }
             $artistsEventsRelation = Artist_Event_Performance::where('artist_id', $artist->id)->get();
             $events = [];
@@ -80,7 +80,7 @@ class ArtistController extends Controller {
         foreach ($artistsUser as $artist) {
             $artistObj = Artist::find($artist->artist_id)->makeHidden(['password', 'access_token', 'created_at', 'updated_at']);
             if ($artistObj->profileImage != 'default') {
-                $artistObj->profileImage = asset('storage/img/' . $artistObj->profileImage);
+                $artistObj->profileImage = asset('storage/img/artists/' . $artistObj->profileImage);
             }
             $artistsEventsRelation = Artist_Event_Performance::where('artist_id', $artist->artist_id)->get();
             $events = [];
@@ -101,11 +101,12 @@ class ArtistController extends Controller {
      */
     public function getArtistByUserName($userName, Request $request) {
         $user = User::where('access_token', $request->header('access_token'))->first();
+        $owner = Artist::where('access_token', $request->header('access_token'))->first();
         $artist =  Artist::where('userName', $userName)->first()->makeHidden(['password', 'access_token', 'created_at', 'updated_at']);
         if ($artist == null) {
             return response('Artist not found', 404);
         } else if ($artist->profileImage != 'default') {
-            $artist->profileImage = asset('storage/img/' . $artist->profileImage);
+            $artist->profileImage = asset('storage/img/artists/' . $artist->profileImage);
         }
         $eventsArtist = Artist_Event_Performance::where('artist_id', $artist->id)->get();
         $events = [];
@@ -116,8 +117,15 @@ class ArtistController extends Controller {
         }
         $artist['events'] = $events;
         $artist['followers'] = User_Artist_Follow::where('artist_id', $artist->id)->count();
-        $userArtist = User_Artist_Follow::where('artist_id', $artist->id)->where('user_id', $user->id)->first();
-        $artist['following'] = $userArtist != null ? true : false;
+        if ($user != null) {
+            $userArtist = User_Artist_Follow::where('artist_id', $artist->id)->where('user_id', $user->id)->first();
+            $artist['following'] = $userArtist != null ? true : false;
+        }
+        if ($owner != null && $owner->id == $artist->id) {
+            $artist['editionAllowed'] = true;
+        } else {
+            $artist['editionAllowed'] = false;
+        }
         return response($artist);
     }
 
@@ -126,6 +134,48 @@ class ArtistController extends Controller {
         return response($artists);
     }
 
+    public function getArtistProfileInfo(Request $request) {
+        $artist = Artist::where('access_token', $request->header('access_token'))->first()->makeHidden('access_token', 'password');
+        if ($artist->profileImage != 'default') {
+            $artist->profileImage = asset('storage/img/artists/' . $artist->profileImage);
+        }
+        return response($artist);
+    }
+
+    public function updateProfile(Request $request) {
+        $artist = Artist::where('access_token', $request->header('access_token'))->first();
+        if (
+            (Artist::where('userName', $request->userName)->first() != null ||
+                User::where('userName', $request->userName)->first() != null) && $request->userName != $artist->userName
+        ) {
+            return response('userNameUsed', 400);
+        }
+        if (
+            (Artist::where('email', $request->email)->first() != null ||
+                User::where('email', $request->email)->first() != null) && $request->email != $artist->email
+        ) {
+            return response('emailUsed', 400);
+        }
+        $artist->userName = $request->userName;
+        $artist->email = $request->email;
+        $artist->fullName = $request->fullName;
+        $artist->bio = $request->bio;
+        $artist->location = $request->location;
+        $artist->save();
+        return response([
+            "updated" => "OK"
+        ]);
+    }
+
+    public function updatePassword(Request $request) {
+        $artist = Artist::where('access_token', $request->header('access_token'))->first();
+        if (!password_verify($request->oldPassword, $artist->password)) {
+            return response('wrongPassword', 403);
+        }
+        $artist->password = password_hash($request->newPassword, PASSWORD_DEFAULT);
+        $artist->save();
+        return response(['passwordUpdated' => 'OK']);
+    }
 
     /**
      * Save profile image
@@ -133,8 +183,11 @@ class ArtistController extends Controller {
     public function saveImg(Request $request) {
         $artist = Artist::where('access_token', $request->header('access_token'))->first();
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
-            $imgPath = $request->image->store('public/img');
-            $artist->profileImage = str_replace('public/img/', '', $imgPath);
+            $imgPath = $request->image->store('public/img/artists');
+            if ($artist->profileImage != 'default') {
+                unlink(public_path('storage/img/artists/' . $artist->profileImage));
+            }
+            $artist->profileImage = str_replace('public/img/artists/', '', $imgPath);
             $artist->save();
             return response([
                 "saved" => "OK",

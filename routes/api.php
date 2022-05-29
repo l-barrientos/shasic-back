@@ -40,6 +40,8 @@ Route::post('event/img/{id}', [EventController::class, 'saveImg'])->middleware('
 
 //User
 Route::get('/getUserProfile', [UserController::class, 'getUserProfile'])->middleware('userAuth');
+Route::put('/userUpdatePassword', [UserController::class, 'updatePassword'])->middleware('userAuth');
+Route::put('/userUpdateProfile', [UserController::class, 'updateProfile'])->middleware('userAuth');
 
 //Events
 Route::get('/events', [EventController::class, 'getAllEvents'])->middleware('userAuth');
@@ -50,12 +52,16 @@ Route::get('/getEventsPerformed', [EventController::class, 'getEventsByArtist'])
 Route::post('/newEvent', [EventController::class, 'newEvent'])->middleware('artistAuth');
 Route::put('/updateEvent/{id}', [EventController::class, 'updateEvent'])->middleware('artistAuth');
 Route::get('/checkEventEdition/{id}', [EventController::class, 'checkEditionAllowed'])->middleware('artistAuth');
-
+Route::delete('/deleteEvent/{id}', [EventController::class, 'deleteEvent'])->middleware('artistAuth');
+Route::delete('/deleteArtistFromEvent/{id}', [EventController::class, 'deleteArtistFromEvent'])->middleware('artistAuth');
 //Artists
 Route::get('/artists', [ArtistController::class, 'getAllArtists'])->middleware('userAuth');
 Route::get('/userArtists', [ArtistController::class, 'getArtistsByUser'])->middleware('userAuth');
-Route::get('/artist/{userName}', [ArtistController::class, 'getArtistByUserName'])->middleware('userAuth');
+Route::get('/artist/{userName}', [ArtistController::class, 'getArtistByUserName']);
 Route::get('/artistsIds', [ArtistController::class, 'getAllArtistsIds'])->middleware('artistAuth');
+Route::get('/artistProfileInfo', [ArtistController::class, 'getArtistProfileInfo'])->middleware('artistAuth');
+Route::put('/artistUpdateProfile', [ArtistController::class, 'updateProfile'])->middleware('artistAuth');
+Route::put('/artistUpdatePassword', [ArtistController::class, 'updatePassword'])->middleware('artistAuth');
 
 //Event following status
 Route::delete('/unfollowEvent/{id}', [UserEventFollowController::class, 'unfollowEvent'])->middleware('userAuth');
