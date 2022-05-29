@@ -25,7 +25,7 @@ class SearchController extends Controller {
 
         foreach ($artists as $artist) {
             if ($artist->profileImage != 'default') {
-                $artist->profileImage = asset('storage/img/' . $artist->profileImage);
+                $artist->profileImage = asset('storage/img/artists/' . $artist->profileImage);
             }
             $artist['followers'] = User_Artist_Follow::where('artist_id', $artist->id)->count();
             $artist['eventsNum'] = Artist_Event_Performance::where('artist_id', $artist->id)->count();
