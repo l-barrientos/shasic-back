@@ -50,12 +50,18 @@ class EventController extends Controller {
      * Get event by id
      */
     public function getEventById($id, Request $request) {
+        $artistLogged = Artist::where('access_token', $request->header('access_token'))->first();
         $user = User::where('access_token', $request->header('access_token'))->first();
         $event = Event::find($id);
+        $event['performing'] = false;
         $artistsEvent = Artist_Event_Performance::where('event_id', $id)->get();
         $artists = [];
         foreach ($artistsEvent as $artEv) {
-            array_push($artists, Artist::find($artEv->artist_id)->makeHidden(['password', 'access_token', 'created_at', 'updated_at']));
+            $performer = Artist::find($artEv->artist_id)->makeHidden(['password', 'access_token', 'created_at', 'updated_at']);
+            if ($artistLogged != null && $performer->id == $artistLogged->id) {
+                $event['performing'] = true;
+            }
+            array_push($artists, $performer);
         }
         $event->eventImage = asset('storage/img/events/' . $event->eventImage);
         $event['artists'] = $artists;
@@ -63,6 +69,11 @@ class EventController extends Controller {
         if ($user != null) {
             $userEvent = User_Event_Follow::where('event_id', $id)->where('user_id', $user->id)->first();
             $event['following'] = $userEvent != null ? true : false;
+        }
+        if ($artistLogged != null && $artistLogged->id == $event->createdBy) {
+            $event['editionAllowed'] = true;
+        } else {
+            $event['editionAllowed'] = false;
         }
 
         return response($event);
@@ -154,14 +165,41 @@ class EventController extends Controller {
         ]);
     }
 
-    public function checkEditionAllowed(Request $request, $id) {
-        $artist = Artist::where('access_token', $request->header('access_token'))->first();
+    /**
+     * Delete event
+     */
+    public function deleteEvent(Request $request, $id) {
+        $updater = Artist::where('access_token', $request->header('access_token'))->first();
         $event = Event::find($id);
-        if ($event->createdBy == $artist->id) {
-            return (["allowed" => true]);
+        if ($event->createdBy != $updater->id) {
+            return response('Not the creator of the event', 403);
         }
-        return (["allowed" => false]);
+        Artist_Event_Performance::where('event_id', $id)->delete();
+        User_Event_Follow::where('event_id', $id)->delete();
+        unlink(public_path('storage/img/events/' . $event->eventImage));
+        $event->delete();
+        return response([
+            'deleted' => 'OK'
+        ]);
     }
+
+    /**
+     * Delete an artist from an event, if the event has no more artists, it will be deleted too
+     */
+    public function deleteArtistFromEvent(Request $request, $id) {
+        $updater = Artist::where('access_token', $request->header('access_token'))->first();
+        Artist_Event_Performance::where('artist_id', $updater->id)->where('event_id', $id)->delete();
+        if (Artist_Event_Performance::where('event_id', $id)->count() == 0) {
+            $event = Event::find($id);
+            unlink(public_path('storage/img/events/' . $event->eventImage));
+            $event->delete();
+            User_Event_Follow::where('event_id', $id)->delete();
+        }
+        return response([
+            'deleted' => 'OK'
+        ]);
+    }
+
 
     /**
      * Save event image

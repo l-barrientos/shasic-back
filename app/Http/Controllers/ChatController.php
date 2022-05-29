@@ -41,7 +41,7 @@ class ChatController extends Controller {
         $user = User::where('access_token', $request->header('access_token'))->first();
         $targetUser = User::where('userName', $targetUserName)->first()->makeHidden('password', 'email', 'access_token', 'created_at', 'updated_at');
         if ($targetUser->profileImage != 'default') {
-            $targetUser->profileImage = asset('storage/img/' . $targetUser->profileImage);
+            $targetUser->profileImage = asset('storage/img/users/' . $targetUser->profileImage);
         }
         $chat = Chat::where('user1_id', $user->id)->where('user2_id', $targetUser->id)->first();
         if ($chat == null) {
@@ -64,7 +64,7 @@ class ChatController extends Controller {
         foreach ($user1chats as $user1chat) {
             $targetUser2 = User::find($user1chat->user2_id)->makeHidden('password', 'email', 'access_token', 'created_at', 'updated_at');
             if ($targetUser2->profileImage != "default") {
-                $targetUser2->profileImage = asset('storage/img/' . $targetUser2->profileImage);
+                $targetUser2->profileImage = asset('storage/img/users/' . $targetUser2->profileImage);
             }
             $targetUser2->chatId = $user1chat->id;
             array_push($openedChats, $targetUser2);
@@ -73,7 +73,7 @@ class ChatController extends Controller {
         foreach ($user2chats as $user2chat) {
             $targetUser1 = User::find($user2chat->user1_id)->makeHidden('password', 'email', 'access_token', 'created_at', 'updated_at');
             if ($targetUser1->profileImage != "default") {
-                $targetUser1->profileImage = asset('storage/img/' . $targetUser1->profileImage);
+                $targetUser1->profileImage = asset('storage/img/users/' . $targetUser1->profileImage);
             }
             $targetUser1->chatId = $user2chat->id;
             array_push($openedChats, $targetUser1);

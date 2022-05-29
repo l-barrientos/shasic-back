@@ -47,8 +47,11 @@ class UserController extends Controller {
     public function saveImg(Request $request) {
         $user = User::where('access_token', $request->header('access_token'))->first();
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
-            $imgPath = $request->image->store('public/img');
-            $user->profileImage = str_replace('public/img/', '', $imgPath);
+            $imgPath = $request->image->store('public/img/users');
+            if ($user->profileImage != 'default') {
+                unlink(public_path('storage/img/users/' . $user->profileImage));
+            }
+            $user->profileImage = str_replace('public/img/users/', '', $imgPath);
             $user->save();
             return response(json_encode([
                 "saved" => "OK",
@@ -71,7 +74,7 @@ class UserController extends Controller {
             if ($userEv->user_id != $userId) {
                 $user =  User::find($userEv->user_id)->makeHidden('password', 'email', 'access_token');
                 if ($user->profileImage != "default") {
-                    $user->profileImage = asset('storage/img/' . $user->profileImage);
+                    $user->profileImage = asset('storage/img/users/' . $user->profileImage);
                 }
                 array_push($users, $user);
             }
@@ -82,8 +85,42 @@ class UserController extends Controller {
     public function getUserProfile(Request $request) {
         $user = User::where('access_token', $request->header('access_token'))->first()->makeHidden('password', 'access_token');
         if ($user->profileImage != "default") {
-            $user->profileImage = asset('storage/img/' . $user->profileImage);
+            $user->profileImage = asset('storage/img/users/' . $user->profileImage);
         }
         return response($user);
+    }
+
+    public function updateProfile(Request $request) {
+        $user = User::where('access_token', $request->header('access_token'))->first();
+        if (
+            (Artist::where('userName', $request->userName)->first() != null ||
+                User::where('userName', $request->userName)->first() != null) && $request->userName != $user->userName
+        ) {
+            return response('userNameUsed', 400);
+        }
+        if (
+            (Artist::where('email', $request->email)->first() != null ||
+                User::where('email', $request->email)->first() != null) && $request->email != $user->email
+        ) {
+            return response('emailUsed', 400);
+        }
+        $user->userName = $request->userName;
+        $user->email = $request->email;
+        $user->fullName = $request->fullName;
+        $user->description = $request->description;
+        $user->save();
+        return response([
+            "updated" => "OK"
+        ]);
+    }
+
+    public function updatePassword(Request $request) {
+        $user = User::where('access_token', $request->header('access_token'))->first();
+        if (!password_verify($request->oldPassword, $user->password)) {
+            return response('wrongPassword', 403);
+        }
+        $user->password = password_hash($request->newPassword, PASSWORD_DEFAULT);
+        $user->save();
+        return response(['passwordUpdated' => 'OK']);
     }
 }

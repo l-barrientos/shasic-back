@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->string('eventImage');
             $table->string('ticketsUrl')->nullable();
             $table->string('details')->nullable();
-            $table->foreign('createdBy')->references('id')->on('users');
+            $table->integer('createdBy');
             $table->timestamps();
         });
     }
