@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Artist;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,8 +20,9 @@ return new class extends Migration {
             $table->string('eventImage');
             $table->string('ticketsUrl')->nullable();
             $table->string('details')->nullable();
-            $table->integer('createdBy');
+            $table->foreignIdFor(Artist::class, 'createdBy');
             $table->timestamps();
+            // $table->foreign('createdBy')->references('id')->on('artists');
         });
     }
 
